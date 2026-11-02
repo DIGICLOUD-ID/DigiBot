@@ -3,7 +3,6 @@ import type {
   WorkflowJobEventPayload,
   CheckRunEventPayload,
 } from '../types/github.js';
-import type { FormattedMessage } from '../types/whatsapp.js';
 
 function formatOutcome(conclusion: string | null, status: string): string {
   if (status === 'queued') return 'QUEUED';
@@ -11,14 +10,14 @@ function formatOutcome(conclusion: string | null, status: string): string {
   return (conclusion || status).toUpperCase();
 }
 
-export function formatWorkflowRunEvent(payload: WorkflowRunEventPayload): FormattedMessage {
+export function formatWorkflowRunEvent(payload: WorkflowRunEventPayload): string {
   const repoName = payload.repository.full_name;
   const run = payload.workflow_run;
   const actor = run.actor.login || payload.sender.login;
   const outcome = formatOutcome(run.conclusion, run.status);
   const branch = run.head_branch || 'unknown';
 
-  const text =
+  return (
     `> *[GITHUB // ACTIONS WORKFLOW]*\n` +
     `> *Repository:* ${repoName}\n` +
     `> *Workflow:* ${run.name}\n\n` +
@@ -29,23 +28,17 @@ export function formatWorkflowRunEvent(payload: WorkflowRunEventPayload): Format
     `- *Triggered by:* ${actor}\n` +
     `- *Event:* \`${run.event}\`\n\n` +
     `*Reference:*\n` +
-    `${run.html_url}`;
-
-  return {
-    text,
-    title: `[WORKFLOW] ${run.name}: ${outcome}`,
-    subtitle: `${repoName} | ${branch}`,
-    sourceUrl: run.html_url,
-  };
+    `${run.html_url}`
+  );
 }
 
-export function formatWorkflowJobEvent(payload: WorkflowJobEventPayload): FormattedMessage {
+export function formatWorkflowJobEvent(payload: WorkflowJobEventPayload): string {
   const repoName = payload.repository.full_name;
   const job = payload.workflow_job;
   const actor = payload.sender.login;
   const outcome = formatOutcome(job.conclusion, job.status);
 
-  const text =
+  return (
     `> *[GITHUB // ACTIONS JOB]*\n` +
     `> *Repository:* ${repoName}\n` +
     `> *Job:* ${job.name}\n\n` +
@@ -54,23 +47,17 @@ export function formatWorkflowJobEvent(payload: WorkflowJobEventPayload): Format
     `- *Action:* ${payload.action.toUpperCase()}\n` +
     `- *Triggered by:* ${actor}\n\n` +
     `*Reference:*\n` +
-    `${job.html_url}`;
-
-  return {
-    text,
-    title: `[JOB] ${job.name}: ${outcome}`,
-    subtitle: repoName,
-    sourceUrl: job.html_url,
-  };
+    `${job.html_url}`
+  );
 }
 
-export function formatCheckRunEvent(payload: CheckRunEventPayload): FormattedMessage {
+export function formatCheckRunEvent(payload: CheckRunEventPayload): string {
   const repoName = payload.repository.full_name;
   const check = payload.check_run;
   const actor = payload.sender.login;
   const outcome = formatOutcome(check.conclusion, check.status);
 
-  const text =
+  return (
     `> *[GITHUB // CHECK RUN]*\n` +
     `> *Repository:* ${repoName}\n` +
     `> *Check:* ${check.name}\n\n` +
@@ -79,12 +66,6 @@ export function formatCheckRunEvent(payload: CheckRunEventPayload): FormattedMes
     `- *Action:* ${payload.action.toUpperCase()}\n` +
     `- *Triggered by:* ${actor}\n\n` +
     `*Reference:*\n` +
-    `${check.html_url}`;
-
-  return {
-    text,
-    title: `[CHECK] ${check.name}: ${outcome}`,
-    subtitle: repoName,
-    sourceUrl: check.html_url,
-  };
+    `${check.html_url}`
+  );
 }

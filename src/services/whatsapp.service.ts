@@ -11,12 +11,7 @@ import fs from 'node:fs';
 import { config } from '../config/env.js';
 import { logger } from '../utils/logger.js';
 import { messageQueue } from '../utils/queue.js';
-import type {
-  WhatsAppConnectionStatus,
-  WhatsAppGroupInfo,
-  WhatsAppStatusResponse,
-  WhatsAppMessagePayload,
-} from '../types/whatsapp.js';
+import type { WhatsAppConnectionStatus, WhatsAppGroupInfo, WhatsAppStatusResponse } from '../types/whatsapp.js';
 
 export class WhatsAppService {
   private sock: WASocket | null = null;
@@ -27,8 +22,8 @@ export class WhatsAppService {
 
   constructor() {
     // Register WhatsApp send implementation into the reliability message queue
-    messageQueue.registerSender((groupId: string, payload: WhatsAppMessagePayload) => {
-      return this.sendRawMessage(groupId, payload);
+    messageQueue.registerSender((groupId: string, message: string) => {
+      return this.sendRawMessage(groupId, message);
     });
   }
 
@@ -55,7 +50,7 @@ export class WhatsAppService {
       const sock = makeWASocket({
         auth: state,
         logger: baileysLogger,
-        printQRInTerminal: false, // Handled manually below via connection.update
+        printQRInTerminal: false,
         browser: ['GitHub Webhook Bot', 'Chrome', '1.0.0'],
         syncFullHistory: false,
         markOnlineOnConnect: false,
@@ -86,7 +81,7 @@ export class WhatsAppService {
     if (qr) {
       this.status = 'qr_ready';
       logger.info('\n======================================================');
-      logger.info('📱 SCAN WHATSAPP QR CODE DENGAN HP ANDA:');
+      logger.info('SCAN WHATSAPP QR CODE DENGAN HP ANDA:');
       logger.info('======================================================\n');
       qrcodeTerminal.generate(qr, { small: true });
       logger.info('\nBuka WhatsApp di HP > Linked Devices > Link a Device > Scan QR diatas.\n');
@@ -144,31 +139,16 @@ export class WhatsAppService {
   }
 
   /**
-   * Internal method to send raw message payload with Baileys features (externalAdReply preview, etc.)
+   * Send standard WhatsApp text message with clean WhatsApp markdown
    */
-  private async sendRawMessage(targetJid: string, payload: WhatsAppMessagePayload): Promise<void> {
+  private async sendRawMessage(targetJid: string, message: string): Promise<void> {
     if (!this.isReady() || !this.sock) {
       throw new Error('WhatsApp client is not connected');
     }
 
     const normalizedJid = this.normalizeJid(targetJid);
-    const contextInfo = payload.sourceUrl
-      ? {
-          externalAdReply: {
-            title: payload.title || 'GitHub Notification',
-            body: payload.subtitle || 'DIGICLOUD',
-            mediaType: 1,
-            sourceUrl: payload.sourceUrl,
-            renderLargerThumbnail: false,
-            showAdAttribution: false,
-          },
-        }
-      : undefined;
-
-    await this.sock.sendMessage(normalizedJid, {
-      text: payload.text,
-      contextInfo,
-    });
+    // Send standard text message - 100% reliable across all WhatsApp clients
+    await this.sock.sendMessage(normalizedJid, { text: message });
   }
 
   /**
@@ -176,7 +156,7 @@ export class WhatsAppService {
    * Enqueues through reliability message queue with retry & rate limiting.
    */
   public async broadcastNotification(
-    payload: WhatsAppMessagePayload | string
+    message: string
   ): Promise<{ success: boolean; totalGroups: number }> {
     const targetGroups = config.WHATSAPP_GROUP_IDS;
 
@@ -188,7 +168,7 @@ export class WhatsAppService {
     logger.info({ targetCount: targetGroups.length }, 'Queueing notification to target groups...');
 
     const enqueuePromises = targetGroups.map((groupId) => {
-      return messageQueue.enqueue(groupId, payload);
+      return messageQueue.enqueue(groupId, message);
     });
 
     const results = await Promise.all(enqueuePromises);

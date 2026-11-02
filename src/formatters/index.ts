@@ -17,7 +17,6 @@ import type {
   DiscussionCommentEventPayload,
   GenericGitHubPayload,
 } from '../types/github.js';
-import type { FormattedMessage } from '../types/whatsapp.js';
 
 import { formatPushEvent } from './push.formatter.js';
 import { formatPullRequestEvent } from './pull-request.formatter.js';
@@ -41,7 +40,7 @@ import {
 } from './discussion.formatter.js';
 import { formatFallbackEvent } from './fallback.formatter.js';
 
-export function formatGitHubEvent(event: string, payload: unknown): FormattedMessage {
+export function formatGitHubEvent(event: string, payload: unknown): string {
   const genericPayload = (payload || {}) as GenericGitHubPayload;
 
   switch (event) {

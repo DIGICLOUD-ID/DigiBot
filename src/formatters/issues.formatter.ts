@@ -1,7 +1,6 @@
 import type { IssuesEventPayload } from '../types/github.js';
-import type { FormattedMessage } from '../types/whatsapp.js';
 
-export function formatIssuesEvent(payload: IssuesEventPayload): FormattedMessage {
+export function formatIssuesEvent(payload: IssuesEventPayload): string {
   const repoName = payload.repository.full_name;
   const issue = payload.issue;
   const author = issue.user.login;
@@ -15,7 +14,7 @@ export function formatIssuesEvent(payload: IssuesEventPayload): FormattedMessage
     bodySection = `\n*Description:*\n\`\`\`\n${snippet}\n\`\`\`\n`;
   }
 
-  const text =
+  return (
     `> *[GITHUB // ISSUE]*\n` +
     `> *Repository:* ${repoName}\n` +
     `> *Action:* ${actionLabel}\n\n` +
@@ -27,12 +26,6 @@ export function formatIssuesEvent(payload: IssuesEventPayload): FormattedMessage
     `- *State:* ${issue.state.toUpperCase()}\n` +
     bodySection +
     `\n*Reference:*\n` +
-    `${issue.html_url}`;
-
-  return {
-    text,
-    title: `[ISSUE #${issue.number}] ${issue.title.trim()}`,
-    subtitle: `${repoName} | ${actionLabel}`,
-    sourceUrl: issue.html_url,
-  };
+    `${issue.html_url}`
+  );
 }

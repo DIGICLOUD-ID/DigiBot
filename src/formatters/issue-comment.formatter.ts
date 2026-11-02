@@ -1,7 +1,6 @@
 import type { IssueCommentEventPayload } from '../types/github.js';
-import type { FormattedMessage } from '../types/whatsapp.js';
 
-export function formatIssueCommentEvent(payload: IssueCommentEventPayload): FormattedMessage {
+export function formatIssueCommentEvent(payload: IssueCommentEventPayload): string {
   const repoName = payload.repository.full_name;
   const issue = payload.issue;
   const comment = payload.comment;
@@ -13,7 +12,7 @@ export function formatIssueCommentEvent(payload: IssueCommentEventPayload): Form
   const cleanBody = comment.body.trim().replace(/\r?\n+/g, ' ');
   const snippet = cleanBody.length > 200 ? `${cleanBody.substring(0, 200)}...` : cleanBody;
 
-  const text =
+  return (
     `> *[GITHUB // ${targetType} COMMENT]*\n` +
     `> *Repository:* ${repoName}\n` +
     `> *Target:* ${targetType} \`#${issue.number}\`\n\n` +
@@ -26,12 +25,6 @@ export function formatIssueCommentEvent(payload: IssueCommentEventPayload): Form
     `${snippet}\n` +
     `\`\`\`\n\n` +
     `*Reference:*\n` +
-    `${comment.html_url}`;
-
-  return {
-    text,
-    title: `[COMMENT] #${issue.number} ${issue.title.trim()}`,
-    subtitle: `${repoName} | By ${commenter}`,
-    sourceUrl: comment.html_url,
-  };
+    `${comment.html_url}`
+  );
 }

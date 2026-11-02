@@ -44,7 +44,7 @@ assert.strictEqual(cache.hasOrAdd('deliv-2'), false, 'Different ID should return
 console.log('✅ DeliveryCache passed');
 
 // ==========================================
-// 2. Formatters Tests (No emoji, WA markdown, Baileys features)
+// 2. Formatters Tests (No emoji, WA markdown)
 // ==========================================
 console.log('Testing GitHub Event Formatters (NO EMOJIS & WHATSAPP MARKDOWN)...');
 
@@ -96,13 +96,11 @@ const pushPayload: PushEventPayload = {
 };
 
 const pushOutput = formatGitHubEvent('push', pushPayload);
-assertNoEmoji(pushOutput.text, 'push');
-assert.ok(pushOutput.text.includes('> *[GITHUB // PUSH]*'));
-assert.ok(pushOutput.text.includes('octocat/Hello-World'));
-assert.ok(pushOutput.text.includes('[abc1234] Fix authentication bug'));
-assert.ok(pushOutput.text.includes('```'));
-assert.ok(pushOutput.title.includes('[PUSH]'));
-assert.strictEqual(pushOutput.sourceUrl, pushPayload.compare);
+assertNoEmoji(pushOutput, 'push');
+assert.ok(pushOutput.includes('> *[GITHUB // PUSH]*'));
+assert.ok(pushOutput.includes('octocat/Hello-World'));
+assert.ok(pushOutput.includes('[abc1234] Fix authentication bug'));
+assert.ok(pushOutput.includes('```'));
 console.log('✅ Push formatter passed (0 emojis, WA blockquote & codeblock verified)');
 
 // 2.2 Pull Request Event
@@ -130,10 +128,10 @@ const prPayload: PullRequestEventPayload = {
 };
 
 const prOutput = formatGitHubEvent('pull_request', prPayload);
-assertNoEmoji(prOutput.text, 'pull_request');
-assert.ok(prOutput.text.includes('> *[GITHUB // PULL REQUEST]*'));
-assert.ok(prOutput.text.includes('`#42`'));
-assert.ok(prOutput.text.includes('Add new feature'));
+assertNoEmoji(prOutput, 'pull_request');
+assert.ok(prOutput.includes('> *[GITHUB // PULL REQUEST]*'));
+assert.ok(prOutput.includes('`#42`'));
+assert.ok(prOutput.includes('Add new feature'));
 console.log('✅ Pull Request formatter passed (0 emojis)');
 
 // 2.3 Issues Event
@@ -157,10 +155,10 @@ const issuePayload: IssuesEventPayload = {
 };
 
 const issueOutput = formatGitHubEvent('issues', issuePayload);
-assertNoEmoji(issueOutput.text, 'issues');
-assert.ok(issueOutput.text.includes('> *[GITHUB // ISSUE]*'));
-assert.ok(issueOutput.text.includes('`#7`'));
-assert.ok(issueOutput.text.includes('Bug report on login'));
+assertNoEmoji(issueOutput, 'issues');
+assert.ok(issueOutput.includes('> *[GITHUB // ISSUE]*'));
+assert.ok(issueOutput.includes('`#7`'));
+assert.ok(issueOutput.includes('Bug report on login'));
 console.log('✅ Issues formatter passed (0 emojis)');
 
 // 2.4 Issue Comment Event
@@ -180,9 +178,9 @@ const commentPayload: IssueCommentEventPayload = {
 };
 
 const commentOutput = formatGitHubEvent('issue_comment', commentPayload);
-assertNoEmoji(commentOutput.text, 'issue_comment');
-assert.ok(commentOutput.text.includes('> *[GITHUB // ISSUE COMMENT]*'));
-assert.ok(commentOutput.text.includes('reproduced this bug'));
+assertNoEmoji(commentOutput, 'issue_comment');
+assert.ok(commentOutput.includes('> *[GITHUB // ISSUE COMMENT]*'));
+assert.ok(commentOutput.includes('reproduced this bug'));
 console.log('✅ Issue Comment formatter passed (0 emojis)');
 
 // 2.5 Release Event
@@ -206,10 +204,10 @@ const releasePayload: ReleaseEventPayload = {
 };
 
 const releaseOutput = formatGitHubEvent('release', releasePayload);
-assertNoEmoji(releaseOutput.text, 'release');
-assert.ok(releaseOutput.text.includes('> *[GITHUB // RELEASE]*'));
-assert.ok(releaseOutput.text.includes('`v2.0.0`'));
-assert.ok(releaseOutput.text.includes('Version 2.0.0 Stable'));
+assertNoEmoji(releaseOutput, 'release');
+assert.ok(releaseOutput.includes('> *[GITHUB // RELEASE]*'));
+assert.ok(releaseOutput.includes('`v2.0.0`'));
+assert.ok(releaseOutput.includes('Version 2.0.0 Stable'));
 console.log('✅ Release formatter passed (0 emojis)');
 
 // 2.6 Workflow Run Event
@@ -234,10 +232,10 @@ const workflowPayload: WorkflowRunEventPayload = {
 };
 
 const workflowOutput = formatGitHubEvent('workflow_run', workflowPayload);
-assertNoEmoji(workflowOutput.text, 'workflow_run');
-assert.ok(workflowOutput.text.includes('> *[GITHUB // ACTIONS WORKFLOW]*'));
-assert.ok(workflowOutput.text.includes('CI Pipeline'));
-assert.ok(workflowOutput.text.includes('`SUCCESS`'));
+assertNoEmoji(workflowOutput, 'workflow_run');
+assert.ok(workflowOutput.includes('> *[GITHUB // ACTIONS WORKFLOW]*'));
+assert.ok(workflowOutput.includes('CI Pipeline'));
+assert.ok(workflowOutput.includes('`SUCCESS`'));
 console.log('✅ Workflow Run formatter passed (0 emojis)');
 
 // 2.7 Workflow Job Event
@@ -259,9 +257,9 @@ const jobPayload: WorkflowJobEventPayload = {
 };
 
 const jobOutput = formatGitHubEvent('workflow_job', jobPayload);
-assertNoEmoji(jobOutput.text, 'workflow_job');
-assert.ok(jobOutput.text.includes('> *[GITHUB // ACTIONS JOB]*'));
-assert.ok(jobOutput.text.includes('build-and-test'));
+assertNoEmoji(jobOutput, 'workflow_job');
+assert.ok(jobOutput.includes('> *[GITHUB // ACTIONS JOB]*'));
+assert.ok(jobOutput.includes('build-and-test'));
 console.log('✅ Workflow Job formatter passed (0 emojis)');
 
 // 2.8 Check Run Event
@@ -282,9 +280,9 @@ const checkPayload: CheckRunEventPayload = {
 };
 
 const checkOutput = formatGitHubEvent('check_run', checkPayload);
-assertNoEmoji(checkOutput.text, 'check_run');
-assert.ok(checkOutput.text.includes('> *[GITHUB // CHECK RUN]*'));
-assert.ok(checkOutput.text.includes('Unit Tests'));
+assertNoEmoji(checkOutput, 'check_run');
+assert.ok(checkOutput.includes('> *[GITHUB // CHECK RUN]*'));
+assert.ok(checkOutput.includes('Unit Tests'));
 console.log('✅ Check Run formatter passed (0 emojis)');
 
 // 2.9 Branch/Tag Create & Delete
@@ -298,9 +296,9 @@ const createPayload: CreateEventPayload = {
   sender: pushPayload.sender,
 };
 const createOutput = formatGitHubEvent('create', createPayload);
-assertNoEmoji(createOutput.text, 'create');
-assert.ok(createOutput.text.includes('> *[GITHUB // TAG CREATED]*'));
-assert.ok(createOutput.text.includes('`v1.0.0-rc1`'));
+assertNoEmoji(createOutput, 'create');
+assert.ok(createOutput.includes('> *[GITHUB // TAG CREATED]*'));
+assert.ok(createOutput.includes('`v1.0.0-rc1`'));
 
 const deletePayload: DeleteEventPayload = {
   ref: 'feature/old-branch',
@@ -310,9 +308,9 @@ const deletePayload: DeleteEventPayload = {
   sender: pushPayload.sender,
 };
 const deleteOutput = formatGitHubEvent('delete', deletePayload);
-assertNoEmoji(deleteOutput.text, 'delete');
-assert.ok(deleteOutput.text.includes('> *[GITHUB // BRANCH DELETED]*'));
-assert.ok(deleteOutput.text.includes('`feature/old-branch`'));
+assertNoEmoji(deleteOutput, 'delete');
+assert.ok(deleteOutput.includes('> *[GITHUB // BRANCH DELETED]*'));
+assert.ok(deleteOutput.includes('`feature/old-branch`'));
 console.log('✅ Branch/Tag Create & Delete formatters passed (0 emojis)');
 
 // 2.10 Fork & Watch
@@ -326,9 +324,9 @@ const forkPayload: ForkEventPayload = {
   sender: { id: 2, login: 'alice', html_url: 'https://github.com/alice' },
 };
 const forkOutput = formatGitHubEvent('fork', forkPayload);
-assertNoEmoji(forkOutput.text, 'fork');
-assert.ok(forkOutput.text.includes('> *[GITHUB // REPOSITORY FORKED]*'));
-assert.ok(forkOutput.text.includes('`alice/Hello-World`'));
+assertNoEmoji(forkOutput, 'fork');
+assert.ok(forkOutput.includes('> *[GITHUB // REPOSITORY FORKED]*'));
+assert.ok(forkOutput.includes('`alice/Hello-World`'));
 
 const watchPayload: WatchEventPayload = {
   action: 'started',
@@ -336,8 +334,8 @@ const watchPayload: WatchEventPayload = {
   sender: { id: 2, login: 'alice', html_url: 'https://github.com/alice' },
 };
 const watchOutput = formatGitHubEvent('watch', watchPayload);
-assertNoEmoji(watchOutput.text, 'watch');
-assert.ok(watchOutput.text.includes('> *[GITHUB // STAR ADDED]*'));
+assertNoEmoji(watchOutput, 'watch');
+assert.ok(watchOutput.includes('> *[GITHUB // STAR ADDED]*'));
 console.log('✅ Fork & Watch formatters passed (0 emojis)');
 
 // 2.11 Deployment & Deployment Status
@@ -358,9 +356,9 @@ const deployPayload: DeploymentEventPayload = {
   sender: pushPayload.sender,
 };
 const deployOutput = formatGitHubEvent('deployment', deployPayload);
-assertNoEmoji(deployOutput.text, 'deployment');
-assert.ok(deployOutput.text.includes('> *[GITHUB // DEPLOYMENT CREATED]*'));
-assert.ok(deployOutput.text.includes('`production`'));
+assertNoEmoji(deployOutput, 'deployment');
+assert.ok(deployOutput.includes('> *[GITHUB // DEPLOYMENT CREATED]*'));
+assert.ok(deployOutput.includes('`production`'));
 
 const deployStatusPayload: DeploymentStatusEventPayload = {
   action: 'created',
@@ -376,9 +374,9 @@ const deployStatusPayload: DeploymentStatusEventPayload = {
   sender: pushPayload.sender,
 };
 const deployStatusOutput = formatGitHubEvent('deployment_status', deployStatusPayload);
-assertNoEmoji(deployStatusOutput.text, 'deployment_status');
-assert.ok(deployStatusOutput.text.includes('> *[GITHUB // DEPLOYMENT STATUS]*'));
-assert.ok(deployStatusOutput.text.includes('`SUCCESS`'));
+assertNoEmoji(deployStatusOutput, 'deployment_status');
+assert.ok(deployStatusOutput.includes('> *[GITHUB // DEPLOYMENT STATUS]*'));
+assert.ok(deployStatusOutput.includes('`SUCCESS`'));
 console.log('✅ Deployment formatters passed (0 emojis)');
 
 // 2.12 Discussion
@@ -399,9 +397,9 @@ const discPayload: DiscussionEventPayload = {
   sender: pushPayload.sender,
 };
 const discOutput = formatGitHubEvent('discussion', discPayload);
-assertNoEmoji(discOutput.text, 'discussion');
-assert.ok(discOutput.text.includes('> *[GITHUB // DISCUSSION]*'));
-assert.ok(discOutput.text.includes('Proposal: Microservices Architecture'));
+assertNoEmoji(discOutput, 'discussion');
+assert.ok(discOutput.includes('> *[GITHUB // DISCUSSION]*'));
+assert.ok(discOutput.includes('Proposal: Microservices Architecture'));
 console.log('✅ Discussion formatter passed (0 emojis)');
 
 // 2.13 Fallback & Ping
@@ -410,17 +408,17 @@ const pingOutput = formatGitHubEvent('ping', {
   repository: pushPayload.repository,
   sender: pushPayload.sender,
 });
-assertNoEmoji(pingOutput.text, 'ping');
-assert.ok(pingOutput.text.includes('> *[GITHUB // WEBHOOK PING]*'));
-assert.ok(pingOutput.text.includes('Design for failure.'));
+assertNoEmoji(pingOutput, 'ping');
+assert.ok(pingOutput.includes('> *[GITHUB // WEBHOOK PING]*'));
+assert.ok(pingOutput.includes('Design for failure.'));
 
 const fallbackOutput = formatGitHubEvent('unknown_custom_event', {
   action: 'triggered',
   repository: pushPayload.repository,
   sender: pushPayload.sender,
 });
-assertNoEmoji(fallbackOutput.text, 'fallback');
-assert.ok(fallbackOutput.text.includes('> *[GITHUB // EVENT: UNKNOWN_CUSTOM_EVENT (TRIGGERED)]*'));
+assertNoEmoji(fallbackOutput, 'fallback');
+assert.ok(fallbackOutput.includes('> *[GITHUB // EVENT: UNKNOWN_CUSTOM_EVENT (TRIGGERED)]*'));
 console.log('✅ Fallback & Ping formatters passed (0 emojis)');
 
 // ==========================================

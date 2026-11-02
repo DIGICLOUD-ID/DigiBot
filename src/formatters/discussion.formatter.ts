@@ -1,7 +1,6 @@
 import type { DiscussionEventPayload, DiscussionCommentEventPayload } from '../types/github.js';
-import type { FormattedMessage } from '../types/whatsapp.js';
 
-export function formatDiscussionEvent(payload: DiscussionEventPayload): FormattedMessage {
+export function formatDiscussionEvent(payload: DiscussionEventPayload): string {
   const repoName = payload.repository.full_name;
   const discussion = payload.discussion;
   const author = discussion.user.login;
@@ -15,7 +14,7 @@ export function formatDiscussionEvent(payload: DiscussionEventPayload): Formatte
     bodySection = `\n*Content:*\n\`\`\`\n${snippet}\n\`\`\`\n`;
   }
 
-  const text =
+  return (
     `> *[GITHUB // DISCUSSION]*\n` +
     `> *Repository:* ${repoName}\n` +
     `> *Category:* ${discussion.category.name}\n\n` +
@@ -27,17 +26,11 @@ export function formatDiscussionEvent(payload: DiscussionEventPayload): Formatte
     `- *Action:* ${actionLabel}\n` +
     bodySection +
     `\n*Reference:*\n` +
-    `${discussion.html_url}`;
-
-  return {
-    text,
-    title: `[DISCUSSION #${discussion.number}] ${discussion.title.trim()}`,
-    subtitle: `${repoName} | ${discussion.category.name}`,
-    sourceUrl: discussion.html_url,
-  };
+    `${discussion.html_url}`
+  );
 }
 
-export function formatDiscussionCommentEvent(payload: DiscussionCommentEventPayload): FormattedMessage {
+export function formatDiscussionCommentEvent(payload: DiscussionCommentEventPayload): string {
   const repoName = payload.repository.full_name;
   const discussion = payload.discussion;
   const comment = payload.comment;
@@ -47,7 +40,7 @@ export function formatDiscussionCommentEvent(payload: DiscussionCommentEventPayl
   const cleanBody = comment.body.trim().replace(/\r?\n+/g, ' ');
   const snippet = cleanBody.length > 200 ? `${cleanBody.substring(0, 200)}...` : cleanBody;
 
-  const text =
+  return (
     `> *[GITHUB // DISCUSSION COMMENT]*\n` +
     `> *Repository:* ${repoName}\n` +
     `> *Target:* DISCUSSION \`#${discussion.number}\`\n\n` +
@@ -60,12 +53,6 @@ export function formatDiscussionCommentEvent(payload: DiscussionCommentEventPayl
     `${snippet}\n` +
     `\`\`\`\n\n` +
     `*Reference:*\n` +
-    `${comment.html_url}`;
-
-  return {
-    text,
-    title: `[DISC COMMENT] #${discussion.number}`,
-    subtitle: `${repoName} | By ${commenter}`,
-    sourceUrl: comment.html_url,
-  };
+    `${comment.html_url}`
+  );
 }

@@ -1,7 +1,6 @@
 import type { PullRequestEventPayload } from '../types/github.js';
-import type { FormattedMessage } from '../types/whatsapp.js';
 
-export function formatPullRequestEvent(payload: PullRequestEventPayload): FormattedMessage {
+export function formatPullRequestEvent(payload: PullRequestEventPayload): string {
   const repoName = payload.repository.full_name;
   const pr = payload.pull_request;
   const author = pr.user.login;
@@ -33,7 +32,7 @@ export function formatPullRequestEvent(payload: PullRequestEventPayload): Format
     descriptionSection = `\n*Description:*\n\`\`\`\n${snippet}\n\`\`\`\n`;
   }
 
-  const text =
+  return (
     `> *[GITHUB // PULL REQUEST]*\n` +
     `> *Repository:* ${repoName}\n` +
     `> *Action:* ${actionLabel}\n\n` +
@@ -46,12 +45,6 @@ export function formatPullRequestEvent(payload: PullRequestEventPayload): Format
     `- *Status:* ${statusDetail}\n` +
     descriptionSection +
     `\n*Reference:*\n` +
-    `${pr.html_url}`;
-
-  return {
-    text,
-    title: `[PR #${pr.number}] ${pr.title.trim()}`,
-    subtitle: `${repoName} | ${actionLabel}`,
-    sourceUrl: pr.html_url,
-  };
+    `${pr.html_url}`
+  );
 }

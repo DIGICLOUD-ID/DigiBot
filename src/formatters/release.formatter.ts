@@ -1,7 +1,6 @@
 import type { ReleaseEventPayload } from '../types/github.js';
-import type { FormattedMessage } from '../types/whatsapp.js';
 
-export function formatReleaseEvent(payload: ReleaseEventPayload): FormattedMessage {
+export function formatReleaseEvent(payload: ReleaseEventPayload): string {
   const repoName = payload.repository.full_name;
   const release = payload.release;
   const author = release.author.login || payload.sender.login;
@@ -17,7 +16,7 @@ export function formatReleaseEvent(payload: ReleaseEventPayload): FormattedMessa
   const tagName = release.tag_name;
   const releaseName = release.name || tagName;
 
-  const text =
+  return (
     `> *[GITHUB // RELEASE]*\n` +
     `> *Repository:* ${repoName}\n` +
     `> *Tag:* \`${tagName}\`\n\n` +
@@ -28,12 +27,6 @@ export function formatReleaseEvent(payload: ReleaseEventPayload): FormattedMessa
     `- *Prerelease:* ${release.prerelease ? 'YES' : 'NO'}\n` +
     notesSection +
     `\n*Reference:*\n` +
-    `${release.html_url}`;
-
-  return {
-    text,
-    title: `[RELEASE ${tagName}] ${releaseName}`,
-    subtitle: `${repoName} | ${actionLabel}`,
-    sourceUrl: release.html_url,
-  };
+    `${release.html_url}`
+  );
 }

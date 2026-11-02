@@ -1,7 +1,6 @@
 import type { PushEventPayload } from '../types/github.js';
-import type { FormattedMessage } from '../types/whatsapp.js';
 
-export function formatPushEvent(payload: PushEventPayload): FormattedMessage {
+export function formatPushEvent(payload: PushEventPayload): string {
   const repoName = payload.repository.full_name;
   const pusherName = payload.pusher.name || payload.sender.login;
   const branch = payload.ref.replace('refs/heads/', '');
@@ -35,7 +34,7 @@ export function formatPushEvent(payload: PushEventPayload): FormattedMessage {
   const beforeHash = payload.before.substring(0, 7);
   const afterHash = payload.after.substring(0, 7);
 
-  const text =
+  return (
     `> *[GITHUB // PUSH]*\n` +
     `> *Repository:* ${repoName}\n` +
     `> *Branch:* \`${branch}\`\n\n` +
@@ -48,12 +47,6 @@ export function formatPushEvent(payload: PushEventPayload): FormattedMessage {
     `${commitsBlock}\n` +
     `\`\`\`\n\n` +
     `*Reference:*\n` +
-    `${targetUrl}`;
-
-  return {
-    text,
-    title: `[PUSH] ${repoName}`,
-    subtitle: `${commitCount} commit(s) by ${pusherName} on ${branch}`,
-    sourceUrl: targetUrl,
-  };
+    `${targetUrl}`
+  );
 }

@@ -1,12 +1,11 @@
 import type { CreateEventPayload, DeleteEventPayload } from '../types/github.js';
-import type { FormattedMessage } from '../types/whatsapp.js';
 
-export function formatCreateEvent(payload: CreateEventPayload): FormattedMessage {
+export function formatCreateEvent(payload: CreateEventPayload): string {
   const repoName = payload.repository.full_name;
   const actor = payload.sender.login;
   const refType = payload.ref_type.toUpperCase();
 
-  const text =
+  return (
     `> *[GITHUB // ${refType} CREATED]*\n` +
     `> *Repository:* ${repoName}\n` +
     `> *Ref:* \`${payload.ref}\`\n\n` +
@@ -15,22 +14,16 @@ export function formatCreateEvent(payload: CreateEventPayload): FormattedMessage
     `- *Author:* ${actor}\n` +
     `- *Master Branch:* \`${payload.master_branch}\`\n\n` +
     `*Reference:*\n` +
-    `${payload.repository.html_url}`;
-
-  return {
-    text,
-    title: `[CREATED ${refType}] ${payload.ref}`,
-    subtitle: `${repoName} | By ${actor}`,
-    sourceUrl: payload.repository.html_url,
-  };
+    `${payload.repository.html_url}`
+  );
 }
 
-export function formatDeleteEvent(payload: DeleteEventPayload): FormattedMessage {
+export function formatDeleteEvent(payload: DeleteEventPayload): string {
   const repoName = payload.repository.full_name;
   const actor = payload.sender.login;
   const refType = payload.ref_type.toUpperCase();
 
-  const text =
+  return (
     `> *[GITHUB // ${refType} DELETED]*\n` +
     `> *Repository:* ${repoName}\n` +
     `> *Ref:* \`${payload.ref}\`\n\n` +
@@ -38,12 +31,6 @@ export function formatDeleteEvent(payload: DeleteEventPayload): FormattedMessage
     `- *Type:* ${refType}\n` +
     `- *Deleted by:* ${actor}\n\n` +
     `*Reference:*\n` +
-    `${payload.repository.html_url}`;
-
-  return {
-    text,
-    title: `[DELETED ${refType}] ${payload.ref}`,
-    subtitle: `${repoName} | By ${actor}`,
-    sourceUrl: payload.repository.html_url,
-  };
+    `${payload.repository.html_url}`
+  );
 }

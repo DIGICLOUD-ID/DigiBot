@@ -2,7 +2,6 @@ import { logger } from '../utils/logger.js';
 import { deliveryCache } from '../utils/cache.js';
 import { formatGitHubEvent } from '../formatters/index.js';
 import { whatsappService } from './whatsapp.service.js';
-import type { FormattedMessage } from '../types/whatsapp.js';
 
 export interface ProcessWebhookResult {
   success: boolean;
@@ -37,10 +36,10 @@ export class GitHubService {
       };
     }
 
-    // 2. Format the event message using clean markdown and Baileys rich preview features
-    let formatted: FormattedMessage;
+    // 2. Format the event message using WhatsApp-supported markdown (no emojis)
+    let formattedMessage: string;
     try {
-      formatted = formatGitHubEvent(event, payload);
+      formattedMessage = formatGitHubEvent(event, payload);
     } catch (formatError) {
       logger.error({ formatError, event, deliveryId }, 'Failed to format GitHub event message');
       throw new Error(`Failed to format event: ${formatError instanceof Error ? formatError.message : String(formatError)}`);
@@ -57,19 +56,14 @@ export class GitHubService {
         duplicate: false,
         event,
         deliveryId,
-        message: formatted.text,
+        message: formattedMessage,
         reason: 'WhatsApp client is not connected',
       };
     }
 
-    // 4. Send via WhatsApp broadcast with Baileys rich link preview
+    // 4. Send via standard WhatsApp text broadcast
     try {
-      const broadcastResult = await whatsappService.broadcastNotification({
-        text: formatted.text,
-        title: formatted.title,
-        subtitle: formatted.subtitle,
-        sourceUrl: formatted.sourceUrl,
-      });
+      const broadcastResult = await whatsappService.broadcastNotification(formattedMessage);
 
       if (!broadcastResult.success && broadcastResult.totalGroups === 0) {
         return {
@@ -77,7 +71,7 @@ export class GitHubService {
           duplicate: false,
           event,
           deliveryId,
-          message: formatted.text,
+          message: formattedMessage,
           reason: 'No target WhatsApp groups configured',
         };
       }
