@@ -9,7 +9,7 @@ export function formatFallbackEvent(event: string, payload: GenericGitHubPayload
   if (event === 'ping') {
     const zen = typeof payload['zen'] === 'string' ? payload['zen'] : 'Keep it logically awesome.';
     return (
-      `> *[GITHUB // WEBHOOK PING]*\n` +
+      `> 🔔 *[GITHUB // WEBHOOK PING]*\n` +
       `> *Repository:* ${repoName}\n\n` +
       `*Status:*\n` +
       `- *Connection:* ACTIVE\n` +
@@ -21,7 +21,7 @@ export function formatFallbackEvent(event: string, payload: GenericGitHubPayload
   }
 
   return (
-    `> *[GITHUB // EVENT: ${event.toUpperCase()}${action}]*\n` +
+    `> 🔔 *[GITHUB // EVENT: ${event.toUpperCase()}${action}]*\n` +
     `> *Repository:* ${repoName}\n\n` +
     `*Details:*\n` +
     `- *Event:* \`${event}\`\n` +

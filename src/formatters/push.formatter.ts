@@ -35,7 +35,7 @@ export function formatPushEvent(payload: PushEventPayload): string {
   const afterHash = payload.after.substring(0, 7);
 
   return (
-    `> *[GITHUB // PUSH]*\n` +
+    `> 🚀 *[GITHUB // PUSH]*\n` +
     `> *Repository:* ${repoName}\n` +
     `> *Branch:* \`${branch}\`\n\n` +
     `*Summary:*\n` +

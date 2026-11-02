@@ -6,21 +6,26 @@ export function formatPullRequestEvent(payload: PullRequestEventPayload): string
   const author = pr.user.login;
   const actor = payload.sender.login;
 
+  let headerIcon = '🔀';
   let actionLabel = payload.action.toUpperCase();
   let statusDetail = pr.draft ? 'Draft' : 'Open';
 
   if (payload.action === 'closed') {
     if (pr.merged) {
+      headerIcon = '🟣';
       actionLabel = 'CLOSED (MERGED)';
       statusDetail = 'Merged into ' + pr.base.ref;
     } else {
+      headerIcon = '❌';
       actionLabel = 'CLOSED (UNMERGED)';
       statusDetail = 'Closed without merge';
     }
   } else if (payload.action === 'synchronize') {
+    headerIcon = '🔄';
     actionLabel = 'COMMITS UPDATED';
     statusDetail = 'New commit(s) pushed to head';
   } else if (payload.action === 'reopened') {
+    headerIcon = '🔄';
     actionLabel = 'REOPENED';
     statusDetail = 'Reopened for review';
   }
@@ -33,7 +38,7 @@ export function formatPullRequestEvent(payload: PullRequestEventPayload): string
   }
 
   return (
-    `> *[GITHUB // PULL REQUEST]*\n` +
+    `> ${headerIcon} *[GITHUB // PULL REQUEST]*\n` +
     `> *Repository:* ${repoName}\n` +
     `> *Action:* ${actionLabel}\n\n` +
     `*Details:*\n` +

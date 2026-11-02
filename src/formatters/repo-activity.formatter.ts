@@ -6,7 +6,7 @@ export function formatForkEvent(payload: ForkEventPayload): string {
   const forkeeName = payload.forkee.full_name;
 
   return (
-    `> *[GITHUB // REPOSITORY FORKED]*\n` +
+    `> 🍴 *[GITHUB // REPOSITORY FORKED]*\n` +
     `> *Source:* ${repoName}\n` +
     `> *Fork:* \`${forkeeName}\`\n\n` +
     `*Details:*\n` +
@@ -22,7 +22,7 @@ export function formatWatchEvent(payload: WatchEventPayload): string {
   const user = payload.sender.login;
 
   return (
-    `> *[GITHUB // STAR ADDED]*\n` +
+    `> ⭐ *[GITHUB // STAR ADDED]*\n` +
     `> *Repository:* ${repoName}\n\n` +
     `*Details:*\n` +
     `- *Starred by:* ${user}\n` +

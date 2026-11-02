@@ -17,7 +17,7 @@ export function formatReleaseEvent(payload: ReleaseEventPayload): string {
   const releaseName = release.name || tagName;
 
   return (
-    `> *[GITHUB // RELEASE]*\n` +
+    `> 🏷️ *[GITHUB // RELEASE]*\n` +
     `> *Repository:* ${repoName}\n` +
     `> *Tag:* \`${tagName}\`\n\n` +
     `*Details:*\n` +

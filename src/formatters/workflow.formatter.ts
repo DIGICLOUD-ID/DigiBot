@@ -5,8 +5,12 @@ import type {
 } from '../types/github.js';
 
 function formatOutcome(conclusion: string | null, status: string): string {
-  if (status === 'queued') return 'QUEUED';
-  if (status === 'in_progress') return 'IN PROGRESS';
+  if (status === 'queued') return '⏳ QUEUED';
+  if (status === 'in_progress') return '⏳ IN PROGRESS';
+  if (conclusion === 'success') return '✅ SUCCESS';
+  if (conclusion === 'failure') return '❌ FAILURE';
+  if (conclusion === 'cancelled') return '⏹️ CANCELLED';
+  if (conclusion === 'timed_out') return '⏱️ TIMED OUT';
   return (conclusion || status).toUpperCase();
 }
 
@@ -18,7 +22,7 @@ export function formatWorkflowRunEvent(payload: WorkflowRunEventPayload): string
   const branch = run.head_branch || 'unknown';
 
   return (
-    `> *[GITHUB // ACTIONS WORKFLOW]*\n` +
+    `> ⚙️ *[GITHUB // ACTIONS WORKFLOW]*\n` +
     `> *Repository:* ${repoName}\n` +
     `> *Workflow:* ${run.name}\n\n` +
     `*Execution:*\n` +
@@ -39,7 +43,7 @@ export function formatWorkflowJobEvent(payload: WorkflowJobEventPayload): string
   const outcome = formatOutcome(job.conclusion, job.status);
 
   return (
-    `> *[GITHUB // ACTIONS JOB]*\n` +
+    `> ⚙️ *[GITHUB // ACTIONS JOB]*\n` +
     `> *Repository:* ${repoName}\n` +
     `> *Job:* ${job.name}\n\n` +
     `*Execution:*\n` +
@@ -58,7 +62,7 @@ export function formatCheckRunEvent(payload: CheckRunEventPayload): string {
   const outcome = formatOutcome(check.conclusion, check.status);
 
   return (
-    `> *[GITHUB // CHECK RUN]*\n` +
+    `> 🩺 *[GITHUB // CHECK RUN]*\n` +
     `> *Repository:* ${repoName}\n` +
     `> *Check:* ${check.name}\n\n` +
     `*Details:*\n` +

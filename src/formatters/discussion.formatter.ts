@@ -15,7 +15,7 @@ export function formatDiscussionEvent(payload: DiscussionEventPayload): string {
   }
 
   return (
-    `> *[GITHUB // DISCUSSION]*\n` +
+    `> 💡 *[GITHUB // DISCUSSION]*\n` +
     `> *Repository:* ${repoName}\n` +
     `> *Category:* ${discussion.category.name}\n\n` +
     `*Details:*\n` +
@@ -41,7 +41,7 @@ export function formatDiscussionCommentEvent(payload: DiscussionCommentEventPayl
   const snippet = cleanBody.length > 200 ? `${cleanBody.substring(0, 200)}...` : cleanBody;
 
   return (
-    `> *[GITHUB // DISCUSSION COMMENT]*\n` +
+    `> 💬 *[GITHUB // DISCUSSION COMMENT]*\n` +
     `> *Repository:* ${repoName}\n` +
     `> *Target:* DISCUSSION \`#${discussion.number}\`\n\n` +
     `*Details:*\n` +

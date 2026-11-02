@@ -7,6 +7,13 @@ export function formatIssuesEvent(payload: IssuesEventPayload): string {
   const actor = payload.sender.login;
   const actionLabel = payload.action.toUpperCase();
 
+  let headerIcon = '⚠️';
+  if (payload.action === 'closed') {
+    headerIcon = '✅';
+  } else if (payload.action === 'reopened') {
+    headerIcon = '🔄';
+  }
+
   let bodySection = '';
   if (issue.body) {
     const cleanBody = issue.body.trim().replace(/\r?\n+/g, ' ');
@@ -15,7 +22,7 @@ export function formatIssuesEvent(payload: IssuesEventPayload): string {
   }
 
   return (
-    `> *[GITHUB // ISSUE]*\n` +
+    `> ${headerIcon} *[GITHUB // ISSUE]*\n` +
     `> *Repository:* ${repoName}\n` +
     `> *Action:* ${actionLabel}\n\n` +
     `*Details:*\n` +

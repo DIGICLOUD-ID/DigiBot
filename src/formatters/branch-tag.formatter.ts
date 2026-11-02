@@ -4,9 +4,10 @@ export function formatCreateEvent(payload: CreateEventPayload): string {
   const repoName = payload.repository.full_name;
   const actor = payload.sender.login;
   const refType = payload.ref_type.toUpperCase();
+  const icon = payload.ref_type === 'tag' ? '🏷️' : '🌿';
 
   return (
-    `> *[GITHUB // ${refType} CREATED]*\n` +
+    `> ${icon} *[GITHUB // ${refType} CREATED]*\n` +
     `> *Repository:* ${repoName}\n` +
     `> *Ref:* \`${payload.ref}\`\n\n` +
     `*Details:*\n` +
@@ -24,7 +25,7 @@ export function formatDeleteEvent(payload: DeleteEventPayload): string {
   const refType = payload.ref_type.toUpperCase();
 
   return (
-    `> *[GITHUB // ${refType} DELETED]*\n` +
+    `> 🗑️ *[GITHUB // ${refType} DELETED]*\n` +
     `> *Repository:* ${repoName}\n` +
     `> *Ref:* \`${payload.ref}\`\n\n` +
     `*Details:*\n` +

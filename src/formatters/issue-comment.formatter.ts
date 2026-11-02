@@ -13,7 +13,7 @@ export function formatIssueCommentEvent(payload: IssueCommentEventPayload): stri
   const snippet = cleanBody.length > 200 ? `${cleanBody.substring(0, 200)}...` : cleanBody;
 
   return (
-    `> *[GITHUB // ${targetType} COMMENT]*\n` +
+    `> 💬 *[GITHUB // ${targetType} COMMENT]*\n` +
     `> *Repository:* ${repoName}\n` +
     `> *Target:* ${targetType} \`#${issue.number}\`\n\n` +
     `*Details:*\n` +

@@ -22,14 +22,19 @@ import type {
 
 console.log('🧪 Starting test suite...');
 
-// Emoji detection regex (Rule: NO EMOJIS ALLOWED!)
-const emojiRegex = /\p{Extended_Pictographic}/u;
+// Emoji detection regex
+const emojiRegex = /\p{Extended_Pictographic}/gu;
 
-function assertNoEmoji(text: string, eventName: string) {
-  assert.strictEqual(
-    emojiRegex.test(text),
-    false,
-    `Violation: Emoji detected in ${eventName} formatter output: "${text}"`
+function countEmojis(text: string): number {
+  const matches = text.match(emojiRegex);
+  return matches ? matches.length : 0;
+}
+
+function assertTastefulEmojis(text: string, eventName: string, min = 1, max = 3) {
+  const count = countEmojis(text);
+  assert.ok(
+    count >= min && count <= max,
+    `Emoji count violation for ${eventName}: expected between ${min} and ${max}, found ${count}`
   );
 }
 
@@ -44,9 +49,9 @@ assert.strictEqual(cache.hasOrAdd('deliv-2'), false, 'Different ID should return
 console.log('✅ DeliveryCache passed');
 
 // ==========================================
-// 2. Formatters Tests (No emoji, WA markdown)
+// 2. Formatters Tests (Tasteful emojis & WA markdown)
 // ==========================================
-console.log('Testing GitHub Event Formatters (NO EMOJIS & WHATSAPP MARKDOWN)...');
+console.log('Testing GitHub Event Formatters with tasteful emojis & WhatsApp markdown...');
 
 // 2.1 Push Event
 const pushPayload: PushEventPayload = {
@@ -96,12 +101,12 @@ const pushPayload: PushEventPayload = {
 };
 
 const pushOutput = formatGitHubEvent('push', pushPayload);
-assertNoEmoji(pushOutput, 'push');
-assert.ok(pushOutput.includes('> *[GITHUB // PUSH]*'));
+assertTastefulEmojis(pushOutput, 'push', 1, 2);
+assert.ok(pushOutput.includes('> 🚀 *[GITHUB // PUSH]*'));
 assert.ok(pushOutput.includes('octocat/Hello-World'));
 assert.ok(pushOutput.includes('[abc1234] Fix authentication bug'));
 assert.ok(pushOutput.includes('```'));
-console.log('✅ Push formatter passed (0 emojis, WA blockquote & codeblock verified)');
+console.log('✅ Push formatter passed (Tasteful 🚀, WA blockquote & codeblock verified)');
 
 // 2.2 Pull Request Event
 const prPayload: PullRequestEventPayload = {
@@ -128,11 +133,11 @@ const prPayload: PullRequestEventPayload = {
 };
 
 const prOutput = formatGitHubEvent('pull_request', prPayload);
-assertNoEmoji(prOutput, 'pull_request');
-assert.ok(prOutput.includes('> *[GITHUB // PULL REQUEST]*'));
+assertTastefulEmojis(prOutput, 'pull_request', 1, 2);
+assert.ok(prOutput.includes('> 🔀 *[GITHUB // PULL REQUEST]*'));
 assert.ok(prOutput.includes('`#42`'));
 assert.ok(prOutput.includes('Add new feature'));
-console.log('✅ Pull Request formatter passed (0 emojis)');
+console.log('✅ Pull Request formatter passed');
 
 // 2.3 Issues Event
 const issuePayload: IssuesEventPayload = {
@@ -155,11 +160,11 @@ const issuePayload: IssuesEventPayload = {
 };
 
 const issueOutput = formatGitHubEvent('issues', issuePayload);
-assertNoEmoji(issueOutput, 'issues');
-assert.ok(issueOutput.includes('> *[GITHUB // ISSUE]*'));
+assertTastefulEmojis(issueOutput, 'issues', 1, 2);
+assert.ok(issueOutput.includes('> ⚠️ *[GITHUB // ISSUE]*'));
 assert.ok(issueOutput.includes('`#7`'));
 assert.ok(issueOutput.includes('Bug report on login'));
-console.log('✅ Issues formatter passed (0 emojis)');
+console.log('✅ Issues formatter passed');
 
 // 2.4 Issue Comment Event
 const commentPayload: IssueCommentEventPayload = {
@@ -178,10 +183,10 @@ const commentPayload: IssueCommentEventPayload = {
 };
 
 const commentOutput = formatGitHubEvent('issue_comment', commentPayload);
-assertNoEmoji(commentOutput, 'issue_comment');
-assert.ok(commentOutput.includes('> *[GITHUB // ISSUE COMMENT]*'));
+assertTastefulEmojis(commentOutput, 'issue_comment', 1, 2);
+assert.ok(commentOutput.includes('> 💬 *[GITHUB // ISSUE COMMENT]*'));
 assert.ok(commentOutput.includes('reproduced this bug'));
-console.log('✅ Issue Comment formatter passed (0 emojis)');
+console.log('✅ Issue Comment formatter passed');
 
 // 2.5 Release Event
 const releasePayload: ReleaseEventPayload = {
@@ -204,11 +209,11 @@ const releasePayload: ReleaseEventPayload = {
 };
 
 const releaseOutput = formatGitHubEvent('release', releasePayload);
-assertNoEmoji(releaseOutput, 'release');
-assert.ok(releaseOutput.includes('> *[GITHUB // RELEASE]*'));
+assertTastefulEmojis(releaseOutput, 'release', 1, 2);
+assert.ok(releaseOutput.includes('> 🏷️ *[GITHUB // RELEASE]*'));
 assert.ok(releaseOutput.includes('`v2.0.0`'));
 assert.ok(releaseOutput.includes('Version 2.0.0 Stable'));
-console.log('✅ Release formatter passed (0 emojis)');
+console.log('✅ Release formatter passed');
 
 // 2.6 Workflow Run Event
 const workflowPayload: WorkflowRunEventPayload = {
@@ -232,11 +237,11 @@ const workflowPayload: WorkflowRunEventPayload = {
 };
 
 const workflowOutput = formatGitHubEvent('workflow_run', workflowPayload);
-assertNoEmoji(workflowOutput, 'workflow_run');
-assert.ok(workflowOutput.includes('> *[GITHUB // ACTIONS WORKFLOW]*'));
+assertTastefulEmojis(workflowOutput, 'workflow_run', 1, 3);
+assert.ok(workflowOutput.includes('> ⚙️ *[GITHUB // ACTIONS WORKFLOW]*'));
 assert.ok(workflowOutput.includes('CI Pipeline'));
-assert.ok(workflowOutput.includes('`SUCCESS`'));
-console.log('✅ Workflow Run formatter passed (0 emojis)');
+assert.ok(workflowOutput.includes('`✅ SUCCESS`'));
+console.log('✅ Workflow Run formatter passed');
 
 // 2.7 Workflow Job Event
 const jobPayload: WorkflowJobEventPayload = {
@@ -257,10 +262,10 @@ const jobPayload: WorkflowJobEventPayload = {
 };
 
 const jobOutput = formatGitHubEvent('workflow_job', jobPayload);
-assertNoEmoji(jobOutput, 'workflow_job');
-assert.ok(jobOutput.includes('> *[GITHUB // ACTIONS JOB]*'));
+assertTastefulEmojis(jobOutput, 'workflow_job', 1, 3);
+assert.ok(jobOutput.includes('> ⚙️ *[GITHUB // ACTIONS JOB]*'));
 assert.ok(jobOutput.includes('build-and-test'));
-console.log('✅ Workflow Job formatter passed (0 emojis)');
+console.log('✅ Workflow Job formatter passed');
 
 // 2.8 Check Run Event
 const checkPayload: CheckRunEventPayload = {
@@ -280,10 +285,10 @@ const checkPayload: CheckRunEventPayload = {
 };
 
 const checkOutput = formatGitHubEvent('check_run', checkPayload);
-assertNoEmoji(checkOutput, 'check_run');
-assert.ok(checkOutput.includes('> *[GITHUB // CHECK RUN]*'));
+assertTastefulEmojis(checkOutput, 'check_run', 1, 3);
+assert.ok(checkOutput.includes('> 🩺 *[GITHUB // CHECK RUN]*'));
 assert.ok(checkOutput.includes('Unit Tests'));
-console.log('✅ Check Run formatter passed (0 emojis)');
+console.log('✅ Check Run formatter passed');
 
 // 2.9 Branch/Tag Create & Delete
 const createPayload: CreateEventPayload = {
@@ -296,8 +301,8 @@ const createPayload: CreateEventPayload = {
   sender: pushPayload.sender,
 };
 const createOutput = formatGitHubEvent('create', createPayload);
-assertNoEmoji(createOutput, 'create');
-assert.ok(createOutput.includes('> *[GITHUB // TAG CREATED]*'));
+assertTastefulEmojis(createOutput, 'create', 1, 2);
+assert.ok(createOutput.includes('> 🏷️ *[GITHUB // TAG CREATED]*'));
 assert.ok(createOutput.includes('`v1.0.0-rc1`'));
 
 const deletePayload: DeleteEventPayload = {
@@ -308,10 +313,10 @@ const deletePayload: DeleteEventPayload = {
   sender: pushPayload.sender,
 };
 const deleteOutput = formatGitHubEvent('delete', deletePayload);
-assertNoEmoji(deleteOutput, 'delete');
-assert.ok(deleteOutput.includes('> *[GITHUB // BRANCH DELETED]*'));
+assertTastefulEmojis(deleteOutput, 'delete', 1, 2);
+assert.ok(deleteOutput.includes('> 🗑️ *[GITHUB // BRANCH DELETED]*'));
 assert.ok(deleteOutput.includes('`feature/old-branch`'));
-console.log('✅ Branch/Tag Create & Delete formatters passed (0 emojis)');
+console.log('✅ Branch/Tag Create & Delete formatters passed');
 
 // 2.10 Fork & Watch
 const forkPayload: ForkEventPayload = {
@@ -324,8 +329,8 @@ const forkPayload: ForkEventPayload = {
   sender: { id: 2, login: 'alice', html_url: 'https://github.com/alice' },
 };
 const forkOutput = formatGitHubEvent('fork', forkPayload);
-assertNoEmoji(forkOutput, 'fork');
-assert.ok(forkOutput.includes('> *[GITHUB // REPOSITORY FORKED]*'));
+assertTastefulEmojis(forkOutput, 'fork', 1, 2);
+assert.ok(forkOutput.includes('> 🍴 *[GITHUB // REPOSITORY FORKED]*'));
 assert.ok(forkOutput.includes('`alice/Hello-World`'));
 
 const watchPayload: WatchEventPayload = {
@@ -334,9 +339,9 @@ const watchPayload: WatchEventPayload = {
   sender: { id: 2, login: 'alice', html_url: 'https://github.com/alice' },
 };
 const watchOutput = formatGitHubEvent('watch', watchPayload);
-assertNoEmoji(watchOutput, 'watch');
-assert.ok(watchOutput.includes('> *[GITHUB // STAR ADDED]*'));
-console.log('✅ Fork & Watch formatters passed (0 emojis)');
+assertTastefulEmojis(watchOutput, 'watch', 1, 2);
+assert.ok(watchOutput.includes('> ⭐ *[GITHUB // STAR ADDED]*'));
+console.log('✅ Fork & Watch formatters passed');
 
 // 2.11 Deployment & Deployment Status
 const deployPayload: DeploymentEventPayload = {
@@ -356,8 +361,8 @@ const deployPayload: DeploymentEventPayload = {
   sender: pushPayload.sender,
 };
 const deployOutput = formatGitHubEvent('deployment', deployPayload);
-assertNoEmoji(deployOutput, 'deployment');
-assert.ok(deployOutput.includes('> *[GITHUB // DEPLOYMENT CREATED]*'));
+assertTastefulEmojis(deployOutput, 'deployment', 1, 2);
+assert.ok(deployOutput.includes('> 🚀 *[GITHUB // DEPLOYMENT CREATED]*'));
 assert.ok(deployOutput.includes('`production`'));
 
 const deployStatusPayload: DeploymentStatusEventPayload = {
@@ -374,10 +379,10 @@ const deployStatusPayload: DeploymentStatusEventPayload = {
   sender: pushPayload.sender,
 };
 const deployStatusOutput = formatGitHubEvent('deployment_status', deployStatusPayload);
-assertNoEmoji(deployStatusOutput, 'deployment_status');
-assert.ok(deployStatusOutput.includes('> *[GITHUB // DEPLOYMENT STATUS]*'));
+assertTastefulEmojis(deployStatusOutput, 'deployment_status', 1, 2);
+assert.ok(deployStatusOutput.includes('> ✅ *[GITHUB // DEPLOYMENT STATUS]*'));
 assert.ok(deployStatusOutput.includes('`SUCCESS`'));
-console.log('✅ Deployment formatters passed (0 emojis)');
+console.log('✅ Deployment formatters passed');
 
 // 2.12 Discussion
 const discPayload: DiscussionEventPayload = {
@@ -397,10 +402,10 @@ const discPayload: DiscussionEventPayload = {
   sender: pushPayload.sender,
 };
 const discOutput = formatGitHubEvent('discussion', discPayload);
-assertNoEmoji(discOutput, 'discussion');
-assert.ok(discOutput.includes('> *[GITHUB // DISCUSSION]*'));
+assertTastefulEmojis(discOutput, 'discussion', 1, 2);
+assert.ok(discOutput.includes('> 💡 *[GITHUB // DISCUSSION]*'));
 assert.ok(discOutput.includes('Proposal: Microservices Architecture'));
-console.log('✅ Discussion formatter passed (0 emojis)');
+console.log('✅ Discussion formatter passed');
 
 // 2.13 Fallback & Ping
 const pingOutput = formatGitHubEvent('ping', {
@@ -408,8 +413,8 @@ const pingOutput = formatGitHubEvent('ping', {
   repository: pushPayload.repository,
   sender: pushPayload.sender,
 });
-assertNoEmoji(pingOutput, 'ping');
-assert.ok(pingOutput.includes('> *[GITHUB // WEBHOOK PING]*'));
+assertTastefulEmojis(pingOutput, 'ping', 1, 2);
+assert.ok(pingOutput.includes('> 🔔 *[GITHUB // WEBHOOK PING]*'));
 assert.ok(pingOutput.includes('Design for failure.'));
 
 const fallbackOutput = formatGitHubEvent('unknown_custom_event', {
@@ -417,9 +422,9 @@ const fallbackOutput = formatGitHubEvent('unknown_custom_event', {
   repository: pushPayload.repository,
   sender: pushPayload.sender,
 });
-assertNoEmoji(fallbackOutput, 'fallback');
-assert.ok(fallbackOutput.includes('> *[GITHUB // EVENT: UNKNOWN_CUSTOM_EVENT (TRIGGERED)]*'));
-console.log('✅ Fallback & Ping formatters passed (0 emojis)');
+assertTastefulEmojis(fallbackOutput, 'fallback', 1, 2);
+assert.ok(fallbackOutput.includes('> 🔔 *[GITHUB // EVENT: UNKNOWN_CUSTOM_EVENT (TRIGGERED)]*'));
+console.log('✅ Fallback & Ping formatters passed');
 
 // ==========================================
 // 3. HMAC SHA-256 Signature Verification Test
@@ -442,4 +447,4 @@ const invalidSignature = `sha256=${invalidHmac.digest('hex')}`;
 assert.strictEqual(validSignature === invalidSignature, false, 'Invalid signature should not match');
 console.log('✅ HMAC SHA-256 signature verification test passed');
 
-console.log('\n🎉 ALL TESTS PASSED! ZERO EMOJIS CONFIRMED & WHATSAPP MARKDOWN VERIFIED! 🎉\n');
+console.log('\n🎉 ALL TESTS PASSED! TASTEFUL EMOJIS & WHATSAPP MARKDOWN VERIFIED! 🎉\n');

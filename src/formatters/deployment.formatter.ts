@@ -6,7 +6,7 @@ export function formatDeploymentEvent(payload: DeploymentEventPayload): string {
   const deployment = payload.deployment;
 
   return (
-    `> *[GITHUB // DEPLOYMENT CREATED]*\n` +
+    `> 🚀 *[GITHUB // DEPLOYMENT CREATED]*\n` +
     `> *Repository:* ${repoName}\n` +
     `> *Environment:* \`${deployment.environment}\`\n\n` +
     `*Details:*\n` +
@@ -26,8 +26,15 @@ export function formatDeploymentStatusEvent(payload: DeploymentStatusEventPayloa
   const status = payload.deployment_status;
   const stateLabel = status.state.toUpperCase();
 
+  let statusIcon = '⏳';
+  if (status.state === 'success') {
+    statusIcon = '✅';
+  } else if (status.state === 'failure' || status.state === 'error') {
+    statusIcon = '❌';
+  }
+
   return (
-    `> *[GITHUB // DEPLOYMENT STATUS]*\n` +
+    `> ${statusIcon} *[GITHUB // DEPLOYMENT STATUS]*\n` +
     `> *Repository:* ${repoName}\n` +
     `> *Environment:* \`${deployment.environment}\`\n\n` +
     `*Status:*\n` +
