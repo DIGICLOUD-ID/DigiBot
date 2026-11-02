@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# WhatsApp session data (Sensitive credentials)
+auth_info/*
+!auth_info/.gitkeep
+*auth_info*
+*.session
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
