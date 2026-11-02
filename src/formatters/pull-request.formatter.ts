@@ -1,44 +1,57 @@
 import type { PullRequestEventPayload } from '../types/github.js';
+import type { FormattedMessage } from '../types/whatsapp.js';
 
-export function formatPullRequestEvent(payload: PullRequestEventPayload): string {
+export function formatPullRequestEvent(payload: PullRequestEventPayload): FormattedMessage {
   const repoName = payload.repository.full_name;
   const pr = payload.pull_request;
   const author = pr.user.login;
   const actor = payload.sender.login;
 
-  let titleHeader = '🔀 *PULL REQUEST OPENED*';
+  let actionLabel = payload.action.toUpperCase();
+  let statusDetail = pr.draft ? 'Draft' : 'Open';
+
   if (payload.action === 'closed') {
     if (pr.merged) {
-      titleHeader = '🟣 *PULL REQUEST MERGED*';
+      actionLabel = 'CLOSED (MERGED)';
+      statusDetail = 'Merged into ' + pr.base.ref;
     } else {
-      titleHeader = '❌ *PULL REQUEST CLOSED*';
+      actionLabel = 'CLOSED (UNMERGED)';
+      statusDetail = 'Closed without merge';
     }
-  } else if (payload.action === 'reopened') {
-    titleHeader = '🔄 *PULL REQUEST REOPENED*';
   } else if (payload.action === 'synchronize') {
-    titleHeader = '🔄 *PULL REQUEST COMMITS UPDATED*';
-  } else {
-    titleHeader = `🔀 *PULL REQUEST ${payload.action.toUpperCase()}*`;
+    actionLabel = 'COMMITS UPDATED';
+    statusDetail = 'New commit(s) pushed to head';
+  } else if (payload.action === 'reopened') {
+    actionLabel = 'REOPENED';
+    statusDetail = 'Reopened for review';
   }
 
-  const baseBranch = pr.base.ref;
-  const headBranch = pr.head.ref;
-  const prNumber = `#${pr.number}`;
-  const prTitle = pr.title.trim();
-
-  let message =
-    `${titleHeader}\n\n` +
-    `📦 *Repository:* ${repoName}\n` +
-    `👤 *Author:* ${author}\n` +
-    (actor !== author ? `⚡ *Action by:* ${actor}\n` : '') +
-    `📝 *Title:* ${prTitle}\n` +
-    `🔢 *PR Number:* ${prNumber}\n` +
-    `📌 *Base:* \`${baseBranch}\` ⬅️ 🌿 *Head:* \`${headBranch}\`\n`;
-
-  if (pr.draft) {
-    message += `📋 *Status:* Draft\n`;
+  let descriptionSection = '';
+  if (pr.body) {
+    const cleanBody = pr.body.trim().replace(/\r?\n+/g, ' ');
+    const snippet = cleanBody.length > 150 ? `${cleanBody.substring(0, 150)}...` : cleanBody;
+    descriptionSection = `\n*Description:*\n\`\`\`\n${snippet}\n\`\`\`\n`;
   }
 
-  message += `\n🔗 *URL:* ${pr.html_url}`;
-  return message;
+  const text =
+    `> *[GITHUB // PULL REQUEST]*\n` +
+    `> *Repository:* ${repoName}\n` +
+    `> *Action:* ${actionLabel}\n\n` +
+    `*Details:*\n` +
+    `- *Title:* ${pr.title.trim()}\n` +
+    `- *Number:* \`#${pr.number}\`\n` +
+    `- *Author:* ${author}\n` +
+    (actor !== author ? `- *Action by:* ${actor}\n` : '') +
+    `- *Branch:* \`${pr.base.ref}\` <- \`${pr.head.ref}\`\n` +
+    `- *Status:* ${statusDetail}\n` +
+    descriptionSection +
+    `\n*Reference:*\n` +
+    `${pr.html_url}`;
+
+  return {
+    text,
+    title: `[PR #${pr.number}] ${pr.title.trim()}`,
+    subtitle: `${repoName} | ${actionLabel}`,
+    sourceUrl: pr.html_url,
+  };
 }

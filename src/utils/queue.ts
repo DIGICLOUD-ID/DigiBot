@@ -1,17 +1,18 @@
 import { logger } from './logger.js';
 import { config } from '../config/env.js';
+import type { WhatsAppMessagePayload } from '../types/whatsapp.js';
 
 export interface QueueItem {
   id: string;
   groupId: string;
-  message: string;
+  payload: WhatsAppMessagePayload;
   retries: number;
   maxRetries: number;
   resolve: (value: boolean) => void;
   reject: (reason?: unknown) => void;
 }
 
-export type SendMessageFunction = (groupId: string, message: string) => Promise<unknown>;
+export type SendMessageFunction = (groupId: string, payload: WhatsAppMessagePayload) => Promise<unknown>;
 
 export class MessageQueue {
   private queue: QueueItem[] = [];
@@ -30,7 +31,7 @@ export class MessageQueue {
     this.sendFn = fn;
   }
 
-  public enqueue(groupId: string, message: string): Promise<boolean> {
+  public enqueue(groupId: string, message: string | WhatsAppMessagePayload): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
       if (this.isDraining) {
         logger.warn('Cannot enqueue message: queue is shutting down');
@@ -38,10 +39,13 @@ export class MessageQueue {
         return;
       }
 
+      const payload: WhatsAppMessagePayload =
+        typeof message === 'string' ? { text: message } : message;
+
       const item: QueueItem = {
         id: `${Date.now()}-${Math.random().toString(36).substring(2, 8)}`,
         groupId,
-        message,
+        payload,
         retries: 0,
         maxRetries: this.maxRetries,
         resolve,
@@ -79,7 +83,7 @@ export class MessageQueue {
 
     let success = false;
     try {
-      await this.sendFn(item.groupId, item.message);
+      await this.sendFn(item.groupId, item.payload);
       logger.info({ queueId: item.id, target: item.groupId }, 'WhatsApp message successfully delivered from queue');
       item.resolve(true);
       success = true;

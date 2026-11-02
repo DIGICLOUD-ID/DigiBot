@@ -11,7 +11,12 @@ import fs from 'node:fs';
 import { config } from '../config/env.js';
 import { logger } from '../utils/logger.js';
 import { messageQueue } from '../utils/queue.js';
-import type { WhatsAppConnectionStatus, WhatsAppGroupInfo, WhatsAppStatusResponse } from '../types/whatsapp.js';
+import type {
+  WhatsAppConnectionStatus,
+  WhatsAppGroupInfo,
+  WhatsAppStatusResponse,
+  WhatsAppMessagePayload,
+} from '../types/whatsapp.js';
 
 export class WhatsAppService {
   private sock: WASocket | null = null;
@@ -22,8 +27,8 @@ export class WhatsAppService {
 
   constructor() {
     // Register WhatsApp send implementation into the reliability message queue
-    messageQueue.registerSender((groupId: string, message: string) => {
-      return this.sendRawMessage(groupId, message);
+    messageQueue.registerSender((groupId: string, payload: WhatsAppMessagePayload) => {
+      return this.sendRawMessage(groupId, payload);
     });
   }
 
@@ -139,22 +144,40 @@ export class WhatsAppService {
   }
 
   /**
-   * Internal method to send raw text message to a specific WhatsApp JID
+   * Internal method to send raw message payload with Baileys features (externalAdReply preview, etc.)
    */
-  private async sendRawMessage(targetJid: string, message: string): Promise<void> {
+  private async sendRawMessage(targetJid: string, payload: WhatsAppMessagePayload): Promise<void> {
     if (!this.isReady() || !this.sock) {
       throw new Error('WhatsApp client is not connected');
     }
 
     const normalizedJid = this.normalizeJid(targetJid);
-    await this.sock.sendMessage(normalizedJid, { text: message });
+    const contextInfo = payload.sourceUrl
+      ? {
+          externalAdReply: {
+            title: payload.title || 'GitHub Notification',
+            body: payload.subtitle || 'DIGICLOUD',
+            mediaType: 1,
+            sourceUrl: payload.sourceUrl,
+            renderLargerThumbnail: false,
+            showAdAttribution: false,
+          },
+        }
+      : undefined;
+
+    await this.sock.sendMessage(normalizedJid, {
+      text: payload.text,
+      contextInfo,
+    });
   }
 
   /**
    * Dispatch notification message to all configured WhatsApp target groups
    * Enqueues through reliability message queue with retry & rate limiting.
    */
-  public async broadcastNotification(message: string): Promise<{ success: boolean; totalGroups: number }> {
+  public async broadcastNotification(
+    payload: WhatsAppMessagePayload | string
+  ): Promise<{ success: boolean; totalGroups: number }> {
     const targetGroups = config.WHATSAPP_GROUP_IDS;
 
     if (targetGroups.length === 0) {
@@ -165,7 +188,7 @@ export class WhatsAppService {
     logger.info({ targetCount: targetGroups.length }, 'Queueing notification to target groups...');
 
     const enqueuePromises = targetGroups.map((groupId) => {
-      return messageQueue.enqueue(groupId, message);
+      return messageQueue.enqueue(groupId, payload);
     });
 
     const results = await Promise.all(enqueuePromises);

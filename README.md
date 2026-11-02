@@ -305,30 +305,30 @@ Untuk mengirim pesan ke grup, bot memerlukan **Group JID** (format: `120xxxxxxxx
 
 ---
 
-## 🔔 Daftar GitHub Events yang Didukung
+## Daftar GitHub Events yang Didukung
 
-Aplikasi ini memiliki formatter visual lengkap untuk setiap event:
+Aplikasi ini menggunakan format enterprise-grade tanpa emoji dengan memanfaatkan fitur native WhatsApp Markdown (Blockquote `> `, Monospace codeblock ```` ``` ````, Bullet list `- `, dan Inline code ``` `code` ```) serta fitur Baileys Rich Link Preview (`contextInfo.externalAdReply`):
 
-| Event GitHub | Trigger | Contoh Konten Pesan WhatsApp |
+| Event GitHub | Trigger | Contoh Format Pesan WhatsApp |
 |---|---|---|
-| `push` | Commit baru di-push | Author, branch, daftar pesan commit, tautan commit / compare |
-| `pull_request` | PR opened, closed, merged, reopened, synchronize | Author, judul PR, nomor PR, status draft, branch base ⬅️ head, tautan PR |
-| `issues` | Issue dibuka, ditutup, dibuka ulang, diedit | Author, judul issue, nomor issue, kutipan deskripsi, tautan issue |
-| `issue_comment` | Komentar baru pada issue atau PR | Pengomentar, nomor issue, ringkasan komentar, tautan komentar |
-| `release` | Rilis baru dipublikasikan atau draft dibuat | Tag rilis, nama rilis, author, release notes, tautan rilis |
-| `workflow_run` | GitHub Actions workflow selesai / gagal | Nama workflow, branch, status (completed/in_progress), conclusion (✅ Success / ❌ Failure) |
-| `workflow_job` | GitHub Actions job selesai | Nama job, status, tautan run job |
+| `push` | Commit baru di-push | Blockquote header, ringkasan commit, codeblock daftar hash commit, reference link |
+| `pull_request` | PR opened, closed, merged, reopened, synchronize | Judul PR, nomor PR, status merge/open/draft, branch base <- head, link review |
+| `issues` | Issue dibuka, ditutup, dibuka ulang, diedit | Judul issue, nomor issue, state, author, codeblock deskripsi |
+| `issue_comment` | Komentar baru pada issue atau PR | Target issue/PR, pengomentar, codeblock isi komentar |
+| `release` | Rilis baru dipublikasikan atau draft dibuat | Tag rilis, judul release, status prerelease, codeblock release notes |
+| `workflow_run` | GitHub Actions workflow selesai / gagal | Nama workflow, branch, run attempt, status outcome (`SUCCESS`, `FAILURE`, `CANCELLED`) |
+| `workflow_job` | GitHub Actions job selesai | Nama job, status outcome, link detail job |
 | `check_run` | Status check run selesai | Nama check suite, hasil conclusion |
-| `create` | Branch atau tag baru dibuat | Tipe (branch/tag), nama ref, author, tautan repo |
-| `delete` | Branch atau tag dihapus | Tipe (branch/tag), nama ref yang dihapus |
-| `fork` | Repository di-fork oleh pengguna lain | Nama repo asal, nama akun pembeli fork, tautan fork |
+| `create` | Branch atau tag baru dibuat | Tipe (BRANCH/TAG), nama ref, master branch, author |
+| `delete` | Branch atau tag dihapus | Tipe (BRANCH/TAG), nama ref yang dihapus |
+| `fork` | Repository di-fork oleh pengguna lain | Source repo, fork repo name, user, tautan fork |
 | `watch` | Repository mendapatkan Bintang (Star) | Nama repo, username pemberi star |
-| `deployment` | Deployment baru dibuat | Environment (e.g. production/staging), branch ref |
-| `deployment_status`| Status deployment berubah | Status (✅ success, ❌ failure, 🔄 in progress), target URL |
-| `discussion` | Diskusi GitHub dibuat/dijawab/ditutup | Judul diskusi, kategori, author, preview isi |
-| `discussion_comment` | Komentar baru pada diskusi | Pengomentar, judul diskusi, isi komentar |
-| `ping` | Verifikasi awal webhook oleh GitHub | Pesan Zen GitHub, konfirmasi sukses |
-| *Fallback* | Event lainnya yang belum terdaftar | Notifikasi nama event, user, dan tautan repositori |
+| `deployment` | Deployment baru dibuat | Environment (e.g. `production`), branch ref, commit SHA |
+| `deployment_status`| Status deployment berubah | Status outcome (`SUCCESS`, `FAILURE`, `IN_PROGRESS`), target URL |
+| `discussion` | Diskusi GitHub dibuat/dijawab/ditutup | Judul diskusi, kategori, author, codeblock preview isi |
+| `discussion_comment` | Komentar baru pada diskusi | Pengomentar, judul diskusi, codeblock isi komentar |
+| `ping` | Verifikasi awal webhook oleh GitHub | Pesan Zen GitHub, konfirmasi status aktif |
+| *Fallback* | Event lainnya yang belum terdaftar | Nama event, user, dan tautan repositori |
 
 ---
 
@@ -339,7 +339,7 @@ Aplikasi ini memiliki formatter visual lengkap untuk setiap event:
 | `GET` | `/health` | Mengecek uptime server dan status bot |
 | `GET` | `/whatsapp/status` | Mengecek status koneksi WhatsApp, nomor bot, dan antrean pesan |
 | `GET` | `/whatsapp/groups` | Mendapatkan daftar seluruh grup WhatsApp beserta Group ID |
-| `POST` | `/webhook/github` | Menerima payload GitHub Webhook (diamankan dengan HMAC SHA-256) |
+| `POST` | `/github`, `/webhook/github` | Menerima payload GitHub Webhook (diamankan dengan HMAC SHA-256) |
 
 ---
 
